@@ -7,10 +7,9 @@ This must satisfy: f(min) = 0, f(max) = 1, and be exactly affine. Also
 verifies the detection tolerance (tol=0.05) is self-consistent: a value
 exactly at the boundary of [-tol, 1+tol] should read Ok, and
 infinitesimally outside should read WarnUnnormalized (no gap or overlap
-in the logic). See devdocs/DEV_LOG.md section 30. Self-contained --
-re-derives the formulas independently rather than importing
-include/utils/RangeCheck.h (which is C++, not Python), so this is a
-from-scratch algebraic check, not a transcription test.
+in the logic). Self-contained --re-derives the formulas independently 
+rather than importing include/utils/RangeCheck.h (which is C++, not Python), 
+so this is a from-scratch algebraic check, not a transcription test.
 
 Run from anywhere: python3 devdocs/verification/verify_rangecheck_math.py
 """
