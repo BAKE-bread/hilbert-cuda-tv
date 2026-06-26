@@ -7,6 +7,30 @@ primal-dual algorithm.
 Built for and tested on: **NVIDIA RTX 4080 Super** (Ada Lovelace, compute
 capability 8.9), **CUDA 12.4**, **Windows 11**, **Visual Studio 2022**.
 
+> **A note on the name.** "Hilbert" here is not a reference to a specific
+> result, theorem, or technique of David Hilbert's, and this project does
+> not implement or rely on anything specifically tied to his work.  
+> The actual algorithm is exactly what the [Reference](#reference) section
+> below says it is: Chambolle & Pock's 2011 primal-dual algorithm applied
+> to the Rudin-Osher-Fatemi (ROF) TV model. The name comes from one
+> internal class, `HilbertOperator<T>`
+> (`include/core/HilbertOperator.cuh`), which is a generic abstract
+> interface for *any* bounded linear operator `K` (with adjoint `K*`) on a
+> finite-dimensional **Hilbert space** — the standard functional-analysis
+> setting these gradient/divergence operators genuinely do live in, and
+> the same setting Chambolle & Pock's own paper uses. That's a real, if
+> fairly generic, piece of terminology — every gradient operator on a
+> discretized image domain is technically "an operator on a Hilbert
+> space" — but it's also the *only* place "Hilbert" connects to anything
+> mathematical in this codebase. The project/executable name
+> (`HilbertCUDA-TV`, `HilbertCUDA-TV.exe`) was chosen as a label built
+> around that one class name, not because the project's math has any
+> closer or more specific connection to Hilbert spaces than any other TV
+> solver would. If you came here expecting Hilbert-space-specific theory
+> (e.g. RKHS methods, spectral theory, something named after a specific
+> Hilbert result), you won't find it — the actual math is in the
+> [Reference](#reference) section below, and it's ROF/CP, not Hilbert.
+
 ---
 
 ## Table of contents
