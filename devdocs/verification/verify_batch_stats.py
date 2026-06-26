@@ -4,8 +4,7 @@ verify_batch_stats.py -- verify the batch-mode summary arithmetic
 (min/max/mean PSNR across all pairs) printed by compare_volumes.py's
 run_batch() matches independently computed numpy statistics on the same
 underlying per-pair PSNR values, and sanity-checks the expected
-monotonic relationship (more injected noise -> lower PSNR). See
-devdocs/DEV_LOG.md section 30.
+monotonic relationship (more injected noise -> lower PSNR).
 
 Run from anywhere: python3 devdocs/verification/verify_batch_stats.py
 """
