@@ -315,10 +315,8 @@ def main():
     except ValueError as e:
         sys.exit(f"Error: {e}")
 
-    # Explicitly logged normalization transform, per the project's
-    # standing convention (see devdocs/DEV_LOG.md section 24 / README.md):
-    # always state the before/after range so normalization is never a
-    # silent, undocumented transformation.
+    # Explicitly logged normalization transform, per the project's standing convention:
+    # always state the before/after range so normalization is never a silent, undocumented transformation.
     print(f"Normalization: {transform_desc}")
     print(f"Range: [{orig_min:.6f}, {orig_max:.6f}] -> Scope: [{normalized.min():.6f}, {normalized.max():.6f}]")
 
