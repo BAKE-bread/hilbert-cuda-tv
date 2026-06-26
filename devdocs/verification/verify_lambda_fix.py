@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 """
 verify_lambda_fix.py -- numerical re-verification of the --reference/--demo
-lambda fix (DEV_LOG.md sections 21/23/25; src/main.cpp's run_*_mode()
-functions). See DEV_LOG.md section 30 for the narrative.
+lambda fix.
 
 This is a faithful Python port of:
   - include/utils/ImageIO.h's make_synthetic_test_image() (the --demo image)
