@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """
-test_compare_volumes.py -- unit tests for compare_volumes.py, focused on
-the previously-untested --batch CSV parsing/error-handling path (see
-devdocs/DEV_LOG.md section 29, item 1) plus the single-pair comparison
-logic it builds on.
+test_compare_volumes.py -- unit tests for compare_volumes.py, focused 
+on the previously-untested --batch CSV parsing/error-handling path
+plus the single-pair comparison logic it builds on.
 
 Run with:
     cd tools/
@@ -31,9 +30,7 @@ def _save_rawvol(path, volume_dhw):
 
 
 def _smooth_volume(shape, seed):
-    """Spatially-correlated synthetic data -- see DEV_LOG section 28 for
-    why uncorrelated random data is the wrong choice for this kind of
-    test fixture."""
+    """Spatially-correlated synthetic data"""
     d, h, w = shape
     zz, yy, xx = np.meshgrid(np.arange(d), np.arange(h), np.arange(w), indexing="ij")
     base = 0.5 + 0.3 * np.sin(xx * 0.3) * np.cos(yy * 0.25) * np.cos(zz * 0.2)
