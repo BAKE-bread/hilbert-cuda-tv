@@ -1,7 +1,7 @@
 // cpu_reference.cpp
 //
 // Standalone double-precision CPU reference for HilbertCUDA-TV.
-// Purpose (per spec Appendix A): a CPU double-precision implementation that
+// Purpose: a CPU double-precision implementation that
 // the GPU kernels are checked against, max abs error <= 1e-5 per iteration.
 //
 // This file ALSO serves as the in-sandbox executable proof that the
@@ -43,17 +43,6 @@ static void gradient(const std::vector<double>& u, int W, int H,
 
 // ---------------------------------------------------------------------------
 // Adjoint operator K* (negative divergence).
-//
-// NOTE ON A SPEC BUG FOUND DURING DEVELOPMENT (see devdocs/DEV_LOG.md §2):
-// The original spec writes this unconditionally as
-//   (K* p)[i,j] = px[i,j-1] - px[i,j] + py[i-1,j] - py[i,j]
-// which is only correct in the interior. It is NOT the true adjoint of the
-// gradient() operator above at the boundary column j=W-1 / row i=H-1,
-// because gradient() forces px[i,W-1]=0 and py[H-1,j]=0 by construction, so
-// the "-px[i,j]" / "-py[i,j]" self-terms must be gated by the SAME boundary
-// condition as the forward-difference term they come from, not applied
-// unconditionally. Verified numerically: with the gate, adjoint error is
-// pure float/double roundoff (~1e-13); without it, error is O(1).
 // ---------------------------------------------------------------------------
 static void divergence(const std::vector<double>& px, const std::vector<double>& py,
                         int W, int H, std::vector<double>& div) {
@@ -81,7 +70,7 @@ static double l2norm(const std::vector<double>& a) {
 }
 
 // ---------------------------------------------------------------------------
-// Test 1: adjoint relation <Ku,p>_Y == <u,K*p>, spec section 2.4
+// Test 1: adjoint relation <Ku,p>_Y == <u,K*p>
 // ---------------------------------------------------------------------------
 static bool test_adjoint(int W, int H, std::mt19937& rng, double& max_rel_err) {
     std::uniform_real_distribution<double> du(0.0, 1.0);
@@ -112,7 +101,7 @@ static bool test_adjoint(int W, int H, std::mt19937& rng, double& max_rel_err) {
 }
 
 // ---------------------------------------------------------------------------
-// Chambolle-Pock primal-dual TV denoising (spec 3.2), double precision.
+// Chambolle-Pock primal-dual TV denoising, double precision.
 // ---------------------------------------------------------------------------
 struct CPState {
     std::vector<double> u, ubar, px, py, f;
@@ -145,16 +134,6 @@ static void cp_iterate(CPState& s, double lambda, double tau, double sigma) {
         }
     }
     // Primal descent + extrapolation
-    //
-    // NOTE ON A SECOND SPEC BUG (see devdocs/DEV_LOG.md §2): the spec writes
-    // u^{n+1} = (u^n + tau*K*p + tau*f)/(1+tau) with a PLUS sign on the
-    // K*p term. Re-deriving the CP prox step for G(u)=0.5||u-f||^2 shows it
-    // must be u^{n+1} = prox_{tau G}(u^n - tau*K*p^{n+1}) -- i.e. MINUS.
-    // Verified numerically: the "+" version makes the ROF energy increase
-    // on >50% of iterations and converges to a fixed point with HIGHER
-    // energy than the trivial u=f starting point (impossible for a correct
-    // minimizer). The "-" version decreases energy monotonically on every
-    // iteration and matches independent coordinate-descent minimization.
     for (int i = 0; i < H; ++i) {
         for (int j = 0; j < W; ++j) {
             size_t idx = (size_t)i * W + j;
