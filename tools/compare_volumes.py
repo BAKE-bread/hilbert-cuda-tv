@@ -1,40 +1,12 @@
 #!/usr/bin/env python3
 """
-compare_volumes.py -- independent comparison of two .rawvol files, for
-situations where HilbertCUDA-TV.exe's --reference mode is NOT the right
-measurement.
+compare_volumes.py -- independent comparison of two .rawvol volume files, 
+for situations where HilbertCUDA-TV.exe's --reference mode is NOT the right measurement.
 
---reference mode is a CONTROLLED SELF-TEST: it loads one file, injects a
-KNOWN amount of synthetic noise, denoises, and measures how well that
-specific injected noise was removed. That's a different question from:
-
-  - "How close is my denoised result to an independently-produced
-    ground-truth clean scan?" (no synthetic noise involved at all)
-  - "How does my result compare to another tool's denoised output on the
-    same input?"
-  - "How different are these two parameter choices' outputs from each
-    other?" (doesn't need any ground truth)
-  - Batch-comparing many file pairs at once.
-
-This script answers those questions directly: give it any two .rawvol
-files of matching shape, and it reports PSNR, SSIM, and basic statistics
-between them -- no noise injection, no assumptions about which one (if
-either) is "clean".
-
-Usage:
-    # Compare a denoised result against independent ground truth
-    python compare_volumes.py --a ground_truth.rawvol --b result.rawvol
-
-    # Compare two different denoising runs against each other
-    python compare_volumes.py --a result_lambda_0.05.rawvol --b result_lambda_0.15.rawvol
-
-    # Batch mode: compare many pairs at once, write a CSV summary
-    python compare_volumes.py --batch pairs.csv --output summary.csv
-
-pairs.csv format (batch mode): two columns, no header, one pair per line:
-    ground_truth_1.rawvol,result_1.rawvol
-    ground_truth_2.rawvol,result_2.rawvol
-    ...
+This script answers those questions directly: give it any two .rawvol files 
+of matching shape, and it reports PSNR, SSIM, and basic statistics between 
+them -- no noise injection, no assumptions about which one (if either) 
+is "clean". It also supports batch comparison of many pairs via a CSV file.
 """
 
 import argparse
