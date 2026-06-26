@@ -13,31 +13,26 @@ capability 8.9), **CUDA 12.4**, **Windows 11**, **Visual Studio 2022**.
 
 - [HilbertCUDA-TV](#hilbertcuda-tv)
   - [Table of contents](#table-of-contents)
+  
   - [What this does, and the math behind it](#what-this-does-and-the-math-behind-it)
-    - [How it's solved](#how-its-solved)
-    - [The operators, concretely](#the-operators-concretely)
-    - [Color images: coupled vectorial TV](#color-images-coupled-vectorial-tv)
-    - [Reference](#reference)
-  - [Quick start](#quick-start)
-    - [Setup (one-time)](#setup-one-time)
-    - [Build](#build)
+  - [**Quick start**](#quick-start--entrance-)
   - [User guide](#user-guide)
-    - [Grayscale denoising](#grayscale-denoising)
-    - [Color denoising](#color-denoising)
-    - [3D volumetric denoising](#3d-volumetric-denoising)
+    - [**Grayscale** denoising](#grayscale-denoising)
+    - [**Color** denoising](#color-denoising)
+    - [**3D volume**tric denoising](#3d-volumetric-denoising)
       - [Volume file format (`.rawvol`)](#volume-file-format-rawvol)
-    - [`--noise-sigma` vs `--lambda`: what each one actually controls](#--noise-sigma-vs---lambda-what-each-one-actually-controls)
-    - [How lambda is auto-estimated (when `--lambda` is omitted)](#how-lambda-is-auto-estimated-when---lambda-is-omitted)
+    - [`--noise-sigma` vs `--lambda`](#--noise-sigma-vs---lambda-what-each-one-actually-controls)
+    - [How lambda is calculated](#how-lambda-is-auto-estimated-when---lambda-is-omitted)
       - [`--no-auto-normalize` and input value ranges](#--no-auto-normalize-and-input-value-ranges)
     - [Profiling](#profiling)
-  - [tools/ (Python scripts for 2D image and 3D volume comparison)](#tools-python-scripts-for-2d-image-and-3d-volume-comparison)
+  - [**Evaluation** (tools/)](#tools-python-scripts-for-2d-image-and-3d-volume-comparison)
     - [preprocess\_volume.py](#preprocess_volumepy)
     - [visualize\_volume.py](#visualize_volumepy)
     - [compare\_volumes.py vs `--reference` mode](#compare_volumespy-vs---reference-mode)
     - [compare\_images.py vs `--reference` mode](#compare_imagespy-vs---reference-mode)
     - [hctv\_metrics.py](#hctv_metricspy)
     - [Running the tools/ test suite](#running-the-tools-test-suite)
-    - [Full CLI reference](#full-cli-reference)
+  - [**Full CLI reference**](#full-cli-reference)
   - [Developer guide](#developer-guide)
     - [Project layout](#project-layout)
     - [Build options](#build-options)
@@ -45,7 +40,7 @@ capability 8.9), **CUDA 12.4**, **Windows 11**, **Visual Studio 2022**.
     - [Extending this project](#extending-this-project)
     - [Testing and validation](#testing-and-validation)
   - [Known limitations and not-yet-implemented features](#known-limitations-and-not-yet-implemented-features)
-  - [FAQ / troubleshooting](#faq--troubleshooting)
+  - [**FAQ** / troubleshooting](#faq--troubleshooting)
 
 ---
 
@@ -55,11 +50,11 @@ Given a noisy image (or 3D volume) `f`, this tool finds a denoised version
 `u` that minimizes:
 
 ```
-min_u   (1/2) ‖u - f‖²   +   λ · TV(u)
+min_u (1/2)‖u - f‖² + λ · TV(u)
 ```
 
 The first term keeps `u` close to the input; the second term, the **total
-variation** `TV(u) = Σ |∇u|`, penalizes how "jagged" `u` is. The balance
+variation** `TV(u) = Σ|∇u|`, penalizes how "jagged" `u` is. The balance
 between the two is controlled by **λ**: higher λ means more smoothing.
 
 What makes TV denoising distinctive compared to a Gaussian blur is that it
@@ -126,7 +121,7 @@ fringing — edges in different channels can land at slightly different
 places after denoising. Instead, it uses **coupled vectorial TV**:
 
 ```
-TV(u) = Σ_pixel  sqrt( Σ_channel |∇u_channel|² )
+TV(u) = Σ_pixel sqrt(Σ_channel |∇u_channel|²)
 ```
 
 The gradient magnitude is computed *jointly* across all channels before
@@ -142,7 +137,7 @@ algorithms"* (1992) for the underlying ROF model.
 
 ---
 
-## Quick start
+## Quick start (!!! ENTRANCE !!!)
 
 ```powershell
 # 1. Build (stb_image headers are already vendored in third_party/ -- no separate download step)
@@ -450,7 +445,7 @@ input format, imported lazily; `compare_images.py` additionally needs
 pip install numpy nibabel pydicom matplotlib Pillow   # matplotlib for visualize_volume.py, Pillow for compare_images.py
 ```
 
-### preprocess_volume.py
+### *preprocess_volume.py*
 
 Loads NIfTI (`.nii`/`.nii.gz`), a DICOM series (a folder of `.dcm`
 slices), or a raw `.npy` array; normalizes it to `[0,1]`; saves it as
@@ -494,7 +489,7 @@ reordering"). By default no reordering happens; pass `--transpose` only
 if you've separately confirmed (e.g. via `--info-only`'s printed NIfTI
 affine matrix) that your data actually needs axes 0 and 2 swapped.
 
-### visualize_volume.py
+### *visualize_volume.py*
 
 Generates a 3×3 grid of orthogonal slices (original / denoised /
 residual, axial/coronal/sagittal) plus a histogram comparison, for
@@ -504,7 +499,7 @@ visually sanity-checking a denoising result.
 python tools/visualize_volume.py --original scan.rawvol --denoised result.rawvol --output comparison.png
 ```
 
-### compare_volumes.py vs `--reference` mode
+### *compare_volumes.py* vs `--reference` mode
 
 These answer **different questions** — use the right one:
 
@@ -537,7 +532,7 @@ python tools/compare_volumes.py --a result_lambda_0.05.rawvol --b result_lambda_
 python tools/compare_volumes.py --batch pairs.csv --output summary.csv
 ```
 
-### compare_images.py vs `--reference` mode
+### *compare_images.py* vs `--reference` mode
 
 This is the 2D (gray/color PNG/JPG) counterpart to `compare_volumes.py`
 above — same rationale, same answer to the same gap: `--reference` mode
@@ -579,7 +574,7 @@ of the R/G/B channels (each a genuine 2D image) and reporting both the
 per-channel breakdown and their average — the same convention
 scikit-image uses for multichannel SSIM.
 
-### hctv_metrics.py
+### *hctv_metrics.py*
 
 Not a CLI tool — a shared PSNR/SSIM/noise-estimator module imported by
 `visualize_volume.py`, `compare_volumes.py`, and `compare_images.py`, so
@@ -597,8 +592,9 @@ cd tools/
 python -m pytest test_hctv_metrics.py test_preprocess_volume.py test_compare_volumes.py test_compare_images.py -v
 ```
 
+---
 
-### Full CLI reference
+## Full CLI reference
 
 | Flag | Default | Applies to | Meaning |
 |---|---|---|---|
@@ -843,11 +839,7 @@ to look before re-deriving something that may already be settled.
   need a new solver generalizing both at once.
 - **`--naive` flag**: only affects grayscale mode; color and volume modes
   always use the shared-memory tiled kernels.
-- This project's CUDA code was originally written without direct access to
-  an NVIDIA GPU during development; while the grayscale path has since been
-  validated on real hardware, the color and volumetric paths have only been
-  validated via careful simulation and CPU-side math verification, not yet
-  run on a GPU. Run `test_color_adjoint.exe` / `test_volume_adjoint.exe`
+- Run `test_color_adjoint.exe` / `test_volume_adjoint.exe`
   first and treat any failure as a real bug report, not a fluke.
 
 ---
