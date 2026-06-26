@@ -6,9 +6,8 @@ operator norm bounds used to set the Chambolle-Pock step sizes (tau=sigma
   - 2D gradient operator (forward difference, Neumann BC): ||K||^2 <= 8
   - 3D gradient operator (extra z-direction term):          ||K||^2 <= 12
 
-These bounds are stated in README.md ("The operators, concretely") and
-devdocs/DEV_LOG.md (section 2, and the 3D claim in the volumetric
-section), originally as a known result from Chambolle & Pock 2011 SS6.2
+These bounds are stated in README.md ("The operators, concretely"), 
+originally as a known result from Chambolle & Pock 2011 SS6.2
 for the 2D case, and "confirmed by direct eigenvalue computation" for the
 3D case. This script re-derives both independently: builds the EXACT
 explicit sparse-as-dense matrix for K (matching the project's own
