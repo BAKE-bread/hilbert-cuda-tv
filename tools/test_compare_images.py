@@ -32,9 +32,7 @@ from compare_images import load_image, compare_pair, run_batch, save_diff_image
 
 
 def _smooth_gray(size=64, seed=0):
-    """Spatially-correlated synthetic grayscale image (see
-    devdocs/DEV_LOG.md section 28 for why this matters instead of
-    uncorrelated random noise as a 'clean' baseline)."""
+    """Spatially-correlated synthetic grayscale image"""
     yy, xx = np.meshgrid(np.arange(size), np.arange(size))
     img = 0.5 + 0.3 * np.sin(xx * 0.1) * np.cos(yy * 0.08)
     return np.clip(img, 0, 1)
