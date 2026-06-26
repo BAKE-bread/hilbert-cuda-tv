@@ -9,8 +9,7 @@
 // which DOES use relocatable device code / __global__ symbols). On
 // Windows with the Visual Studio 2022 CMake generator + CUDA 12.4, this
 // combination caused the generated project's device-link step to be
-// misconfigured. Confirmed fix (by actually building on real hardware,
-// see devdocs/DEV_LOG.md section 11): add this file to the executable's
+// misconfigured. Confirmed fix: add this file to the executable's
 // source list, and also set the global CMAKE_CUDA_SEPARABLE_COMPILATION
 // variable in CMakeLists.txt in addition to the per-target property.
 //
