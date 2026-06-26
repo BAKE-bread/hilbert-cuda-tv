@@ -6,7 +6,7 @@ formulas implemented from scratch here (NOT importing or copying any
 code from hctv_metrics.py's own implementation), to catch any subtle bug
 that might survive hctv_metrics.py's own self-consistency. Comparing a
 function to itself proves nothing; comparing it to an independently
-written reference does. See devdocs/DEV_LOG.md section 30.
+written reference does.
 
 Run from anywhere: python3 devdocs/verification/verify_metrics_math.py
 """
