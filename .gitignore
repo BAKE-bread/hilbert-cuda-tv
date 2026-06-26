@@ -1,0 +1,98 @@
+# Build outputs
+build/
+build*/
+out/
+*.dir/
+x64/
+x86/
+Release/
+Debug/
+RelWithDebInfo/
+MinSizeRel/
+
+# CMake
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+Testing/
+*.cmake
+!CMakeLists.txt
+
+# Visual Studio
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+.vs/
+
+# Compiled binaries / objects
+*.exe
+*.dll
+*.lib
+*.exp
+*.obj
+*.o
+*.a
+*.so
+*.pdb
+*.ilk
+*.idb
+*.exp
+
+# CUDA intermediates
+*.ptx
+*.cubin
+*.fatbin
+*.nvvp
+*.sass
+
+# Nsight profiling outputs (can be large; regenerate as needed)
+*.nsys-rep
+*.ncu-rep
+*.qdrep
+*.sqlite
+
+# NOTE: stb_image.h / stb_image_write.h used to be excluded here (the
+# user downloaded them locally rather than this repo vendoring them).
+# As of devdocs/DEV_LOG.md section 25 (session 3), the user provided the
+# real files directly and they are now genuinely vendored in
+# third_party/ -- so they must NOT be gitignored anymore, or a fresh
+# clone would be missing them despite README.md's Quick start no longer
+# even mentioning a download step for the common case. Found this stale
+# rule still present during session 4's cleanup pass (see section 30) --
+# fixed here rather than left as a latent "looks fine until someone does
+# a fresh clone" trap.
+
+# Generated test/demo outputs (images, volumes the user creates while
+# trying the tool -- not part of the source tree)
+*.rawvol
+output/*.png
+output/*.rawvol
+data/*.png
+data/*.jpg
+data/*.rawvol
+!data/README.md
+!output/README.md
+
+# OS/editor cruft
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+*.code-workspace
+
+# Python (tools/ now has a real pytest suite as of devdocs/DEV_LOG.md
+# section 30 -- ignore the usual cache/bytecode cruft it generates)
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+.coverage
+htmlcov/
