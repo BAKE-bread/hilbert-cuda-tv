@@ -4,26 +4,7 @@ compare_images.py -- independent comparison of two 2D image files
 (PNG/JPG/BMP/etc, grayscale or color), for situations where
 HilbertCUDA-TV.exe's --reference mode is NOT the right measurement.
 
-This is the 2D (gray/color image) counterpart to compare_volumes.py --
-see that script's docstring for the full --reference-vs-direct-comparison
-rationale; the short version:
-
---reference mode (available in ALL THREE of HilbertCUDA-TV.exe's modes --
-gray, color, and volume) is a CONTROLLED SELF-TEST: it loads one file,
-injects a KNOWN amount of synthetic noise, denoises, and measures how
-well that specific injected noise was removed. It does NOT compare two
-independently-existing files to each other. That's a different question:
-
-  - "How close is my denoised result to an independently-produced
-    ground-truth clean photo?" (no synthetic noise involved at all --
-    e.g. comparing clean.png against denoised.png after running
-    --input clean.png through the solver)
-  - "How does my result compare to another tool's denoised output on the
-    same input?"
-  - "How different are these two parameter choices' outputs from each
-    other?" (doesn't need any ground truth)
-  - Batch-comparing many file pairs at once.
-
+This is the 2D (gray/color image) counterpart to compare_volumes.py.
 This script answers those questions directly: give it any two image
 files of matching dimensions, and it reports PSNR, SSIM, and basic pixel
 statistics between them -- no noise injection, no assumptions about
@@ -31,23 +12,6 @@ which one (if either) is "clean". Works on grayscale OR color images;
 mismatched grayscale-vs-color pairs are rejected with a clear error
 rather than silently broadcast/misread (see compare_pair()'s docstring).
 
-Usage:
-    # Compare a denoised result against independent ground truth
-    python compare_images.py --a clean.png --b denoised.png
-
-    # Save a visual diff heatmap alongside the printed numbers
-    python compare_images.py --a clean.png --b denoised.png --diff-output diff.png
-
-    # Compare two different denoising runs against each other
-    python compare_images.py --a result_lambda_0.05.png --b result_lambda_0.15.png
-
-    # Batch mode: compare many pairs at once, write a CSV summary
-    python compare_images.py --batch pairs.csv --output summary.csv
-
-pairs.csv format (batch mode): two columns, no header, one pair per line:
-    clean_1.png,denoised_1.png
-    clean_2.png,denoised_2.png
-    ...
 """
 
 import argparse
