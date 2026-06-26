@@ -18,10 +18,7 @@ Covers:
     the "block too small to have variance" edge case
   - estimate_noise_sigma(): recovers a known injected sigma on spatially
     correlated synthetic data (2D and 3D) -- explicitly NOT using
-    uncorrelated random data as the "clean" baseline, which is the exact
-    trap documented in devdocs/DEV_LOG.md section 28 (uncorrelated noise
-    has no spatial structure for the Laplacian-based estimator to exploit,
-    so it looks "wrong" even though the estimator itself is fine).
+    uncorrelated random data as the "clean" baseline.
 """
 
 import sys
@@ -33,9 +30,7 @@ from hctv_metrics import psnr, ssim_windowed, estimate_noise_sigma
 
 
 def make_smooth_2d(size=32, seed=0):
-    """Spatially-correlated synthetic 'clean' test image -- see module
-    docstring and DEV_LOG section 28 for why this matters instead of
-    np.random.uniform(...)."""
+    """Spatially-correlated synthetic 'clean' test image"""
     yy, xx = np.meshgrid(np.arange(size), np.arange(size))
     return (0.5 + 0.3 * np.sin(xx * 0.2) * np.cos(yy * 0.15)).astype(np.float64)
 
@@ -157,8 +152,7 @@ class TestEstimateNoiseSigma(unittest.TestCase):
         self.assertLess(est, true_sigma * 0.5)
 
     def test_uncorrelated_random_data_is_not_a_valid_clean_baseline(self):
-        # Documents the DEV_LOG section 28 trap rather than silently
-        # avoiding it: uncorrelated noise as "clean" data makes the
+        # Uncorrelated noise as "clean" data makes the
         # estimator read much higher than the injected sigma, because its
         # own high-frequency content swamps the signal. This test asserts
         # that the failure mode is real and reproducible, as a guard
@@ -169,8 +163,8 @@ class TestEstimateNoiseSigma(unittest.TestCase):
         true_sigma = 25.0 / 255.0
         noisy = np.clip(uncorrelated + rng.normal(0, true_sigma, uncorrelated.shape), 0, 1)
         est = estimate_noise_sigma(noisy)
-        # Expect a substantial overestimate (this is the documented trap,
-        # not a bug to "fix" here) -- use a loose bound that just confirms
+        # Expect a substantial overestimate (this is the documented trap) 
+        # -- use a loose bound that just confirms
         # the gap is large, not a precise regression pin.
         self.assertGreater(est, true_sigma * 1.5)
 
