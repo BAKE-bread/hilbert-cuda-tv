@@ -126,7 +126,7 @@ def estimate_noise_sigma(data):
 if __name__ == "__main__":
     # Quick self-test when run directly (not a full test suite -- see
     # tools/test_hctv_metrics.py for that). Mirrors the sanity checks used
-    # when these formulas were first validated in C++ (devdocs/DEV_LOG.md).
+    # when these formulas were first validated in C++.
     import sys
     rng = np.random.default_rng(0)
 
@@ -142,10 +142,7 @@ if __name__ == "__main__":
     # data, not pure uncorrelated random noise -- a uniform-random array's
     # OWN Laplacian is large (no spatial structure to exploit), which
     # swamps the injected noise signal and makes the estimator look wrong
-    # when it is actually working correctly on realistic data (this exact
-    # mistake was caught and documented in devdocs/DEV_LOG.md during
-    # earlier estimator validation; repeating the fix here for the Python
-    # side's self-test too).
+    # when it is actually working correctly on realistic data.
     yy, xx = np.meshgrid(np.arange(32), np.arange(32))
     smooth2d = (0.5 + 0.3 * np.sin(xx * 0.2) * np.cos(yy * 0.15)).astype(np.float64)
     noisy2d = np.clip(smooth2d + rng.normal(0, 25 / 255, smooth2d.shape), 0, 1)
