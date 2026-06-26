@@ -5,37 +5,12 @@ DICOM series, or a raw numpy .npy array), inspect basic info, normalize to
 [0,1] with a clearly logged transform, and save as the project's .rawvol
 format for use with HilbertCUDA-TV --mode volume.
 
-Generalizes the loading/conversion logic originally prototyped in the
-project's nii.py / nii2.py scripts into a single, reusable, well-tested
-command-line tool.
-
-WHY THIS SCRIPT EXISTS (see devdocs/DEV_LOG.md sections 21, 23, 24):
-loading raw medical-imaging data without normalizing it first previously
-caused a catastrophic --reference-mode failure (PSNR around -50 dB) on
-real CT data because the rest of the pipeline assumes [0,1]-normalized
-input. HilbertCUDA-TV.exe now auto-normalizes and warns about this itself
+HilbertCUDA-TV.exe now auto-normalizes and warns about this itself
 as a safety net, but the RIGHT place to normalize medical data is here,
 where you can choose a clinically-meaningful window (e.g. a CT lung or
 soft-tissue window) rather than relying on naive min-max normalization,
 which is sensitive to a handful of extreme outlier voxels (air, metal
-artifacts) and can badly compress the useful intensity range -- see the
-"Why windowing matters" section below for a worked numeric example.
-
-Usage examples:
-    # NIfTI, CT, soft-tissue window
-    python preprocess_volume.py --input liver_001.nii.gz --output liver_001.rawvol \\
-        --window -100 400
-
-    # NIfTI, MRI (no standard HU units -- use percentile clipping instead)
-    python preprocess_volume.py --input brain.nii.gz --output brain.rawvol \\
-        --percentile 1 99
-
-    # DICOM series folder, lung window
-    python preprocess_volume.py --input ./dicom_series/ --output scan.rawvol \\
-        --window -1000 500
-
-    # Just inspect a file without converting anything
-    python preprocess_volume.py --input scan.nii.gz --info-only
+artifacts) and can badly compress the useful intensity range.
 
 Dependencies: numpy (required). nibabel (for NIfTI), pydicom (for DICOM)
 are imported lazily -- you only need the one matching your actual input
