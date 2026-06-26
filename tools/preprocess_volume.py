@@ -118,23 +118,13 @@ def load_volume_auto(path):
 # ---------------------------------------------------------------------------
 
 def to_depth_height_width(data, force_transpose=False):
-    """Returns data in (depth, height, width) order -- the convention this
-    project's .rawvol format and README use.
-
-    IMPORTANT: this does NOT guess your data's axis order from its shape.
-    An earlier version of this script tried a "if shape[0] != shape[2],
-    transpose" heuristic; testing found it guesses WRONG for the common
-    case of real medical volumes, where depth (slice count) routinely
-    differs from in-plane width regardless of whether the data is already
-    in the right order -- shape comparison alone cannot distinguish
-    "already correct, just asymmetric" from "needs reordering". There is
-    no reliable shape-only heuristic for this.
-
-    Instead: by default, NO reordering is applied (your data is assumed to
-    already be in, or you will explicitly request, (depth, height, width)
-    order). Pass --transpose to swap axes 0 and 2 if you've checked (e.g.
-    via --info-only's printed NIfTI affine matrix, which DOES reliably
-    encode true voxel orientation, unlike shape) that your data needs it.
+    """
+    Returns data in (depth, height, width) order (matching 
+    this project's .rawvol format).
+    
+    No automatic axis reordering is applied. Pass --transpose to swap 
+    axes 0 and 2 if you have verified (e.g., via --info-only and the 
+    NIfTI affine matrix) that your data requires it.
     """
     if data.ndim != 3:
         sys.exit(f"Error: expected a 3D volume, got shape {data.shape} "
