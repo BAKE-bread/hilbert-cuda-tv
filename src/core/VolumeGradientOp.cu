@@ -1,11 +1,10 @@
 // VolumeGradientOp.cu
 //
 // Direct transcription of the 3D tile designs verified in Python
-// simulation BEFORE writing this CUDA code (devdocs/DEV_LOG.md section 13,
-// /tmp/verify_3d_tile_design.py and /tmp/verify_3d_div_tile.py during
-// development): output matched the flat reference exactly across 6 volume
-// sizes including non-block-aligned (17x9x5) and degenerate (1x1x1) cases,
-// with zero shared-memory write conflicts.
+// simulation BEFORE writing this CUDA code: output matched the 
+// flat reference exactly across 6 volume sizes including
+// non-block-aligned (17x9x5) and degenerate (1x1x1) cases, with
+// zero shared-memory write conflicts.
 
 #include "core/VolumeGradientOp.cuh"
 #include "utils/CudaCheck.cuh"
