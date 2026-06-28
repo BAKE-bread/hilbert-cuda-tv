@@ -1,10 +1,9 @@
 // ColorROFSolver.cuh
 //
-// Chambolle-Pock solver for coupled vectorial TV color denoising, per
-// devdocs/DEV_LOG.md section 12. Structurally mirrors ROFSolver.cuh (see
-// that file for the base scalar algorithm and the two bugs that were
-// found and fixed there -- both fixes are inherited here, since this
-// solver reuses the same corrected primal-update sign and gated-divergence
+// Chambolle-Pock solver for coupled vectorial TV color denoising. 
+// Structurally mirrors ROFSolver.cuh (see the file for the base scalar 
+// algorithm -- both fixes are inherited here, since this solver
+// reuses the same corrected primal-update sign and gated-divergence
 // formula, just generalized across channels with a joint dual-norm
 // projection).
 //
