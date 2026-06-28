@@ -218,8 +218,7 @@ inline GrayImage make_synthetic_test_image(int W, int H) {
 // Color analog of make_synthetic_test_image: same smooth-background +
 // sharp-block structure, but with a distinct color per region so color
 // fringing (the artifact coupled vectorial TV is specifically meant to
-// avoid -- see devdocs/DEV_LOG.md section 12) would be visually obvious if
-// the coupling were broken.
+// avoid) would be visually obvious if the coupling were broken.
 inline ColorImage make_synthetic_color_test_image(int W, int H) {
     ColorImage img;
     img.width = W;
@@ -267,10 +266,10 @@ inline GrayImage add_gaussian_noise(const GrayImage& img, double sigma_255, uint
 // (no extra dependency, and the stencil's noise-gain is known in closed
 // form so the MAD->sigma conversion constant is exact, not approximate).
 //
-// VERIFIED (see devdocs/DEV_LOG.md section 15): accurate within ~1-4% of
-// the true sigma across sigma=5..60 (255-scale) on both smooth and sharp-
-// edged synthetic test images, and correctly reports near-zero for a
-// genuinely clean (noise-free) image rather than being fooled by edges --
+// VERIFIED : accurate within ~1-4% of the true sigma across 
+// sigma=5..60 (255-scale) on both smooth and sharp-edged synthetic 
+// test images, and correctly reports near-zero for a genuinely clean 
+// (noise-free) image rather than being fooled by edges --
 // median-based MAD is naturally robust to the small fraction of pixels
 // that are real edges/texture, which is exactly why this estimator (and
 // not e.g. a simple global stddev or variance) was chosen.
@@ -319,7 +318,7 @@ inline double estimate_noise_sigma(const std::vector<float>& data, int W, int H)
 // known because the caller chose --noise-sigma) reproduce the EXACT same
 // PSNR numbers already validated on real hardware. For blind --input
 // (sigma unknown), combine this with estimate_noise_sigma() above instead
-// of guessing a fixed lambda. See devdocs/DEV_LOG.md section 15.
+// of guessing a fixed lambda.
 inline float lambda_from_sigma(double sigma_normalized, double k = 1.5) {
     return static_cast<float>(k * sigma_normalized);
 }
