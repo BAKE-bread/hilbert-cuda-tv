@@ -1,14 +1,14 @@
 // VolumeGradientOp.cuh
 //
-// 3D forward-difference gradient/divergence (Neumann boundary), per
-// devdocs/DEV_LOG.md section 13. Direct generalization of the proven 2D
+// 3D forward-difference gradient/divergence (Neumann boundary). 
+// Direct generalization of the proven 2D
 // scalar operator (include/core/GradientOp.cuh) with a third (z)
 // direction; same gating pattern, same correctness argument, independently
 // re-verified (adjoint identity + operator norm bound) rather than just
 // assumed to generalize.
 //
 // Deliberately a SEPARATE implementation from GradientOp.cuh/.cu, not a
-// modification of it -- see devdocs/DEV_LOG.md section 14.
+// modification of it.
 #pragma once
 
 #include <cuda_runtime.h>
