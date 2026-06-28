@@ -1,10 +1,9 @@
 // DivergenceOp.cuh
 //
-// Spec section 5.1 names a `DivergenceOperator` class distinct from
-// `GradientOperator`. We implement the actual kernels jointly in
-// GradientOp.cu/.cuh (they're an adjoint pair sharing tile machinery -- see
-// devdocs/DEV_LOG.md section 3 for the rationale). This header provides a
-// thin wrapper with the exact spec'd class name and HilbertOperator<float>
+// A `DivergenceOperator` class distinct from `GradientOperator`.
+// We implement the actual kernels jointly in GradientOp.cu/.cuh (they're
+// an adjoint pair sharing tile machinery. This header provides a
+// thin wrapper with the exact class name and HilbertOperator<float>
 // interface, for anyone integrating against that name directly. Internally
 // it just forwards to GradientOperator's divergence()/gradient() methods,
 // so there's exactly one implementation of the kernels to keep in sync.
