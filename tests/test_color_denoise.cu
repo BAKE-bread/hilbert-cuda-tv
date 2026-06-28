@@ -2,9 +2,8 @@
 //
 // End-to-end color denoising acceptance test: synthetic color test image
 // (distinct-colored regions, specifically so color fringing would be
-// visually/numerically obvious if channel coupling were broken -- see
-// devdocs/DEV_LOG.md section 12) -> add per-channel Gaussian noise ->
-// ColorROFSolver -> check PSNR improvement.
+// visually/numerically obvious if channel coupling were broken) -> add 
+// per-channel Gaussian noise -> ColorROFSolver -> check PSNR improvement.
 
 #include "solvers/ColorROFSolver.cuh"
 #include "utils/ImageIO.h"
