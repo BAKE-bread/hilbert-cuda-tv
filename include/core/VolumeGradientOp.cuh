@@ -7,7 +7,7 @@
 // re-verified (adjoint identity + operator norm bound) rather than just
 // assumed to generalize.
 //
-// Deliberately a SEPARATE implementation from GradientOp.cuh/.cu, not a
+// Deliberately a SEPARATE implementation from GradientOp.cuh/.cu, not a 
 // modification of it.
 #pragma once
 
