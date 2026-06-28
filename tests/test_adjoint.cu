@@ -4,14 +4,12 @@
 // shared-memory tiled kernels, across a range of grid sizes including
 // degenerate edge cases. This is the GPU-side counterpart to
 // devdocs/cpu_reference/cpu_reference.cpp's test_adjoint(), which is the
-// authority on what the CORRECT formula is (see devdocs/DEV_LOG.md section
-// 2 for the bug that was found and fixed there before any CUDA was
-// written). If this test and the CPU reference disagree, trust the CPU
+// authority on what the CORRECT formula is. 
+// If this test and the CPU reference disagree, trust the CPU
 // reference and suspect a CUDA-specific bug (race condition, wrong launch
 // config, etc) -- not the math.
 //
-// Spec Appendix A requires: |<Ku,p> - <u,K*p>| <= 1e-5 (scaled). We use a
-// scale-relative tolerance matching the CPU reference's 1e-6 * max(norms)
+// We use a scale-relative tolerance matching the CPU reference's 1e-6 * max(norms)
 // convention; float32 on GPU will have larger absolute error than the
 // double-precision CPU reference, so the tolerance here is intentionally
 // looser (1e-4 relative) to account for float32 accumulation -- this is a
