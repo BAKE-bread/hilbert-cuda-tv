@@ -1,12 +1,12 @@
 // test_volume_denoise.cu
 //
 // End-to-end 3D volumetric denoising acceptance test: synthetic sphere-in-
-// background test volume (devdocs/DEV_LOG.md section 13) -> add Gaussian
-// noise -> VolumeROFSolver -> check PSNR improvement. Uses the
-// INDEPENDENTLY VERIFIED 3D step size internally (tau=sigma=1/sqrt(12)),
-// not the 2D constant -- if this test fails by converging to visible
-// blocky/noisy artifacts despite the adjoint test passing, the step size
-// is the first thing to double check (see VolumeROFSolver.cu comments).
+// background test volume -> add Gaussian noise -> VolumeROFSolver ->
+// check PSNR improvement. Uses the INDEPENDENTLY VERIFIED 3D step size 
+// internally (tau=sigma=1/sqrt(12)), not the 2D constant -- if this
+// test fails by converging to visible blocky/noisy artifacts despite the
+// adjoint test passing, the step size is the first thing to double
+// check (see VolumeROFSolver.cu comments).
 
 #include "solvers/VolumeROFSolver.cuh"
 #include "utils/VolumeIO.h"
