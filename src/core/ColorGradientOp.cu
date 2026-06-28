@@ -1,8 +1,7 @@
 // ColorGradientOp.cu
 //
 // Per-channel-looped tiled kernels, verified in Python simulation before
-// CUDA transcription (devdocs/DEV_LOG.md section 12/14, see also the
-// verification methodology established in section 9 for the scalar case).
+// CUDA transcription.
 // Design: loop over channels INSIDE the kernel, reusing the SAME shared
 // memory tile buffer for each channel sequentially -- shared memory usage
 // stays identical to the scalar 2D kernel regardless of channel count C,
