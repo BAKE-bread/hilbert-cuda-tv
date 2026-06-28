@@ -3,10 +3,7 @@
 // See include/core/GradientOp.cuh for the adjoint-formula correction note.
 // Tile layouts below were derived and exhaustively verified in Python
 // simulation against a reference implementation BEFORE being transcribed
-// here (devdocs/DEV_LOG.md section 2, /tmp/tile_design*.py during
-// development) -- this sandbox has no nvcc/GPU, so that simulation is the
-// closest available substitute for compiling and running the actual
-// kernels. The index arithmetic below is a direct transcription of the
+// here. The index arithmetic below is a direct transcription of the
 // verified Python logic; nothing here is "new" math.
 
 #include "core/GradientOp.cuh"
@@ -36,7 +33,7 @@ __global__ void kernel_gradient_naive(const float* __restrict__ u,
 
 // Adjoint (negative divergence). See header comment: both self-terms are
 // gated by the SAME boundary condition as the corresponding forward
-// difference, which is the fix for the spec's unconditional-self-term bug.
+// difference, which is the fix for the unconditional-self-term bug.
 __global__ void kernel_divergence_naive(const float* __restrict__ px,
                                          const float* __restrict__ py,
                                          float* __restrict__ div,
