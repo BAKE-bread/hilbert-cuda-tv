@@ -1,8 +1,6 @@
 // MultiGpuStub.cuh
 //
-// Interface-only placeholder for multi-GPU distributed TV denoising, per
-// the original spec's optional F7 feature and the user's explicit request
-// to "retain interfaces" for this without implementing it now.
+// Interface-only placeholder for multi-GPU distributed TV denoising.
 //
 // NONE of the methods below are implemented (they all currently just
 // throw/abort with a clear message) -- this header exists purely to fix
@@ -13,7 +11,7 @@
 //       without needing to renegotiate the API surface later.
 //
 // INTENDED DESIGN (not implemented, documented here for whoever picks
-// this up later -- see devdocs/DEV_LOG.md section 18 for more detail):
+// this up later:
 //   - Partition the image/volume along ROWS (2D) or Z-SLABS (3D) across
 //     N available GPUs, one contiguous partition per device.
 //   - Each device runs its OWN ROFSolver/VolumeROFSolver instance on its
