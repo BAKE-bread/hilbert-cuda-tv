@@ -27,10 +27,10 @@ inline double psnr(const std::vector<float>& a, const std::vector<float>& b, dou
 // Structural similarity index (SSIM), single-scale, global (whole-image)
 // formulation per Wang et al. 2004, using global mean/variance/covariance
 // rather than the typical 11x11 sliding Gaussian window. This is a
-// deliberate simplification: it is fast, dependency-free, and is what the
-// spec's acceptance criteria (8.2) need as a scalar pass/fail metric. It
-// will read slightly differently from windowed-SSIM implementations (e.g.
-// scikit-image's), so don't directly compare numbers across tools without
+// deliberate simplification: it is fast, dependency-free, and is what
+// is needed as a scalar pass/fail metric. It will read slightly 
+// differently from windowed-SSIM implementations (e.g. scikit-image's), 
+// so don't directly compare numbers across tools without
 // accounting for this. Documented here and in README so nobody is
 // surprised by a different SSIM value from a different library.
 inline double ssim_global(const std::vector<float>& a, const std::vector<float>& b, double dynamic_range = 1.0) {
