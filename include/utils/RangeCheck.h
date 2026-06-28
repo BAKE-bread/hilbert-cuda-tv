@@ -3,8 +3,7 @@
 // Shared input-data sanity check, used by every mode (gray/color/volume)
 // right after loading data, before doing anything else with it.
 //
-// See devdocs/DEV_LOG.md section 21 for the bug this exists to prevent:
-// loading raw medical-imaging data (e.g. CT Hounsfield-range values in
+// Loading raw medical-imaging data (e.g. CT Hounsfield-range values in
 // [0,1999] or [-1000,500]) without normalizing it first silently produced
 // nonsensical results (PSNR around -50 dB) because the rest of the
 // pipeline assumes [0,1]-normalized input. This check catches that BEFORE
