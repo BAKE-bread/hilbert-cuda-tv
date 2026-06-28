@@ -1,13 +1,10 @@
 // VolumeROFSolver.cu
 //
-// Kernel designs verified via Python simulation before CUDA transcription
-// (devdocs/DEV_LOG.md section 13). CORRECTED primal-update sign (minus,
-// not plus -- see devdocs/DEV_LOG.md section 2 bug #2) and gated divergence
-// boundary terms (section 2 bug #1) are both used throughout, same as the
-// proven 2D/color solvers. Step size uses the INDEPENDENTLY VERIFIED 3D
-// operator norm bound tau=sigma=1/sqrt(12) -- NOT 1/sqrt(8) -- confirmed
-// by direct eigenvalue computation in devdocs/DEV_LOG.md section 13, not
-// just pattern-matched from the 2D case.
+// Kernel designs verified via Python simulation before CUDA transcription. 
+// The same as the proven 2D/color solvers. Step size uses the INDEPENDENTLY 
+// VERIFIED 3D operator norm bound tau=sigma=1/sqrt(12) -- NOT 1/sqrt(8)
+// -- confirmed by direct eigenvalue computation, not just pattern-matched
+// from the 2D case.
 
 #include "solvers/VolumeROFSolver.cuh"
 #include "core/VolumeGradientOp.cuh" // for kVolumeTileDim
@@ -222,8 +219,7 @@ void VolumeROFSolver::upload(const std::vector<float>& f) {
 }
 
 float VolumeROFSolver::iterate_once() {
-    // 3D operator norm bound: ||K||^2 <= 12 (NOT 8 -- independently
-    // verified via eigenvalue computation, see devdocs/DEV_LOG.md section 13).
+    // 3D operator norm bound: ||K||^2 <= 12.
     const float tau = 1.0f / sqrtf(12.0f);
     const float sigma = 1.0f / sqrtf(12.0f);
 
