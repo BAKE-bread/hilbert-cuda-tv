@@ -1,12 +1,11 @@
 // VolumeROFSolver.cuh
 //
-// Chambolle-Pock solver for 3D volumetric TV denoising, per
-// devdocs/DEV_LOG.md section 13. Structurally mirrors ROFSolver.cuh with a
-// third (z) dimension; inherits the same two bug fixes (gated divergence,
-// corrected primal-update sign) and uses the INDEPENDENTLY VERIFIED 3D
+// Chambolle-Pock solver for 3D volumetric TV denoising
+// Structurally mirrors ROFSolver.cuh with a third (z) dimension;
+// inherits the same two bug fixes (gated divergence, corrected
+// primal-update sign) and uses the INDEPENDENTLY VERIFIED 3D
 // operator norm bound tau=sigma=1/sqrt(12), NOT 1/sqrt(8) -- this is not
-// the same constant as the 2D/color solvers, see devdocs/DEV_LOG.md
-// section 13 for the eigenvalue computation that justifies this.
+// the same constant as the 2D/color solvers.
 #pragma once
 
 #include <cuda_runtime.h>
