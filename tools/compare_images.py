@@ -25,28 +25,16 @@ from hctv_metrics import psnr, ssim_windowed
 
 
 def load_image(path):
-    """Load an image file as a float64 array in [0,1].
-    Grayscale images return shape (H,W). Color images return shape
-    (H,W,3) -- standard interleaved RGB, which is how PNG/JPG/etc are
-    stored on disk regardless of HilbertCUDA-TV.exe's internal PLANAR
-    in-memory layout for ColorImage (see include/utils/ImageIO.h) --
-    that planar layout is purely an in-process implementation detail for
-    the solver's per-channel kernels, never written to disk, so there is
-    nothing to convert here. Any alpha channel is dropped (RGBA -> RGB),
-    matching ImageIO.h's load_color(), which also forces 3 channels.
-
-    NOTE: HilbertCUDA-TV.exe itself only ever reads/writes 8-bit PNGs
-    (include/utils/ImageIO.h uses stbi_load/stbi_write_png, never the
-    16-bit stbi_load_16 variant) -- so files THIS project produces are
-    always plain 8-bit "L" or RGB. The 16-bit handling below exists only
-    for the case where the user points this tool at some OTHER 16-bit
-    PNG (e.g. a scientific camera capture) for comparison; it is not
-    something HilbertCUDA-TV.exe's own outputs ever require."""
+    """
+    Load an image as float64 array in [0,1].
+    Grayscale -> (H,W), RGB -> (H,W,3). Alpha channel dropped (RGBA->RGB).
+    Supports 8-bit and 16-bit grayscale PNG; 16-bit values divided by 65535.
+    """
     try:
         from PIL import Image
     except ImportError:
-        sys.exit("Error: reading image files requires the 'Pillow' package.\n"
-                  "Install it with: pip install Pillow")
+        sys.exit("Error: reading images requires Pillow. Install: pip install Pillow")
+
     try:
         img = Image.open(path)
     except FileNotFoundError:
@@ -58,30 +46,18 @@ def load_image(path):
     if mode == "L":
         return np.asarray(img, dtype=np.float64) / 255.0
     elif mode in ("I;16", "I;16B", "I;16L", "I;16N"):
-        # Genuine 16-bit-depth grayscale (e.g. 16-bit PNG) -- divide by
-        # the format's true max (65535), the same convention as "L"
-        # dividing by 255, NOT by this particular image's own observed
-        # min/max (which would silently rescale contrast differently for
-        # different files and make PSNR/SSIM numbers incomparable across
-        # them).
+        # 16-bit grayscale
         return np.asarray(img, dtype=np.float64) / 65535.0
     elif mode == "I":
-        # Plain "I" is PIL's 32-bit signed int mode with no single fixed
-        # bit-depth convention -- pick 8-bit or 16-bit based on the
-        # decoded values actually present, which is the best available
-        # signal for what the source really was.
+        # 32-bit signed int; guess bit depth from max value
         arr = np.asarray(img, dtype=np.float64)
         return arr / 255.0 if arr.max() <= 255 else arr / 65535.0
     elif mode == "F":
-        # 32-bit float pixels, also no fixed convention. If values look
-        # like an integer 0-255 range that got stored as float, treat it
-        # that way; otherwise assume it's already roughly normalized.
+        # 32-bit float; normalize if values are >1.5 (assume integer range)
         arr = np.asarray(img, dtype=np.float64)
         return arr / 255.0 if arr.max() > 1.5 else arr
     else:
-        # Anything else (RGB, RGBA, P/palette, CMYK, etc) -> force
-        # standard RGB, exactly mirroring ImageIO.h's load_color()
-        # forcing 3 channels.
+        # Convert any other mode (RGBA, P, CMYK, etc.) to RGB
         rgb = img.convert("RGB")
         return np.asarray(rgb, dtype=np.float64) / 255.0
 
@@ -91,21 +67,16 @@ def is_color(arr):
 
 
 def compare_pair(path_a, path_b, dynamic_range=None):
-    """Returns a dict of comparison metrics between two image files.
-    Raises ValueError if dimensions/color-mode don't match or files
-    can't be loaded -- caller decides whether to treat that as fatal
-    (single-pair mode) or skip-and-continue (batch mode).
-
-    Color images (H,W,3): PSNR is computed over all channels jointly
-    (standard definition -- MSE pooled across R,G,B). SSIM is computed
-    PER CHANNEL via hctv_metrics.ssim_windowed() (which only natively
-    understands 2D images or true 3D volumes) and then averaged across
-    the 3 channels -- NOT by passing the (H,W,3) array into
-    ssim_windowed() directly, which would silently misinterpret a color
-    image as a 3-slice volume (depth=H, height=W, width=3) and produce a
-    meaningless number with no error. This per-channel-then-average
-    approach is the same convention used by, e.g., scikit-image's
-    multichannel SSIM."""
+    """
+    Returns a dict of comparison metrics between two image files.
+    Raises ValueError if dimensions/color-mode don't match or files can't be loaded
+    (caller decides whether to treat as fatal or skip in batch mode).
+    
+    Color images (H,W,3): PSNR uses standard joint MSE across all channels.
+    SSIM is computed per-channel (via hctv_metrics.ssim_windowed) and averaged,
+    NOT by passing the (H,W,3) array directly (which would misinterpret
+    as a 3‑slice volume).
+    """
     a = load_image(path_a)
     b = load_image(path_b)
 
@@ -159,12 +130,11 @@ def compare_pair(path_a, path_b, dynamic_range=None):
 
 
 def save_diff_image(a, b, output_path):
-    """Save a visual diff heatmap (|a-b|, averaged across channels if
-    color, mapped through a simple blue-white-red diverging colormap
-    matching tools/visualize_volume.py's residual panel convention for
-    consistency across the 2D and 3D tools) as a PNG. Does not require
-    matplotlib -- built directly with Pillow/numpy so this script's only
-    hard dependency stays Pillow, matching load_image()'s dependency."""
+    """
+    Save a visual diff heatmap (|a-b|, averaged across channels if color)
+    as a PNG using a blue-white-red diverging colormap.
+    Requires Pillow (already used by load_image).
+    """
     try:
         from PIL import Image
     except ImportError:
@@ -178,11 +148,7 @@ def save_diff_image(a, b, output_path):
     vmax_abs = np.percentile(np.abs(diff), 99) or 1e-9
     t = np.clip(diff / vmax_abs, -1.0, 1.0)  # normalized to [-1, 1]
 
-    # Simple diverging colormap, white at t=0: blue for t>0 (A brighter
-    # than B), red for t<0 (B brighter than A) -- same sign convention as
-    # visualize_volume.py's "Original - Denoised" residual panel. At
-    # t=+1: (R,G,B)=(0,0,255) pure blue. At t=-1: (255,0,0) pure red.
-    # At t=0: (255,255,255) white. Linear in |t| on each side of zero.
+    # Diverging colormap: blue for t>0 (A brighter), red for t<0 (B brighter)
     red = np.where(t >= 0, 255 * (1 - t), 255)
     green = np.where(t >= 0, 255 * (1 - t), 255 * (1 + t))
     blue = np.where(t >= 0, 255, 255 * (1 + t))
