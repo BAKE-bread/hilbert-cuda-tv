@@ -1,13 +1,11 @@
 // ROFSolver.cuh
 //
 // Chambolle-Pock primal-dual solver for the ROF (Rudin-Osher-Fatemi) TV
-// denoising model, per spec section 3. All iteration state lives on the
-// GPU; only the initial upload and final download touch the host.
+// denoising model. All iteration state lives on the GPU; 
+// only the initial upload and final download touch the host.
 //
 // IMPORTANT: this solver uses the CORRECTED primal-update sign (minus, not
-// plus, on the tau*K*p term) -- see devdocs/DEV_LOG.md section 2, bug #2,
-// for the full derivation and numerical proof that the spec's literal
-// formula (and its own demo code) has the wrong sign there.
+// plus, on the tau*K*p term), for the full derivation and numerical proof.
 #pragma once
 
 #include <cuda_runtime.h>
@@ -21,15 +19,15 @@ struct ROFParams {
     int   max_iterations = 300; // outer CP iteration count
     bool  use_shared_memory = true;
 
-    // Spec Appendix A asks for an optional debug-mode per-iteration adjoint
-    // assertion. NOTE: this flag is currently a documented NO-OP -- setting
+    // Asking for an optional debug-mode per-iteration adjoint assertion.
+    // NOTE: this flag is currently a documented NO-OP -- setting
     // it to true does not change solver behavior. Wiring it up for real
     // would require a reduction kernel + host readback every iteration,
     // which would reintroduce the per-iteration host sync that
-    // ROFSolver::solve()'s hot loop is specifically designed to avoid (see
-    // devdocs/DEV_LOG.md section 8). Use tests/test_adjoint.cu instead --
-    // it performs the equivalent check as a standalone, one-time
-    // verification rather than paying that cost on every solve() call.
+    // ROFSolver::solve()'s hot loop is specifically designed to avoid. 
+    // Use tests/test_adjoint.cu instead -- it performs the equivalent 
+    // check as a standalone, one-time verification rather than 
+    // paying that cost on every solve() call.
     bool  debug_check_adjoint_each_iter = false;
 };
 
