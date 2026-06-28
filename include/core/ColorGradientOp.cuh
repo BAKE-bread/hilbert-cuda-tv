@@ -1,17 +1,14 @@
 // ColorGradientOp.cuh
 //
-// Vector-valued (coupled) gradient/divergence for C-channel color images,
-// per devdocs/DEV_LOG.md section 12. The gradient and divergence per
-// channel are IDENTICAL to the scalar 2D case (include/core/GradientOp.cuh)
-// -- only the projection step (in ColorROFSolver, not here) couples
-// channels through a joint norm. This header only adds the per-channel
-// gradient/divergence kernels generalized to operate on C contiguous
-// planar channel blocks in one launch, rather than coupling anything
-// itself.
+// Vector-valued (coupled) gradient/divergence for C-channel color images. 
+// The gradient and divergence per channel are IDENTICAL to the scalar 2D case
+// (include/core/GradientOp.cuh) -- only the projection step (in 
+// ColorROFSolver) couples channels through a joint norm. This header only
+// adds the per-channel gradient/divergence kernels generalized to operate
+// on C contiguous planar channel blocks in one launch, rather than 
+// coupling anything itself.
 //
-// Deliberately NOT reusing/modifying include/core/GradientOp.cuh or its
-// kernels -- see devdocs/DEV_LOG.md section 14 for why the hardware-
-// validated scalar 2D path is being left completely untouched.
+// Deliberately NOT reusing/modifying include/core/GradientOp.cuh or its kernels.
 #pragma once
 
 #include <cuda_runtime.h>
