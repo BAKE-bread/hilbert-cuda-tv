@@ -37,7 +37,7 @@
 //   --width/--height <int> size for --demo in gray/color mode (default 512x512)
 //   --depth <int>          additional size dimension for --demo in volume mode (default 64)
 //
-// Automatic lambda (see devdocs/DEV_LOG.md sections 15 and 23):
+// Automatic lambda:
 //   lambda is ALWAYS estimated directly from the array that will actually
 //   be fed to the solver (a robust MAD-based noise estimator), in EVERY
 //   mode -- --input, --demo, and --reference alike. This deliberately does
@@ -52,7 +52,7 @@
 //   about -50 dB by silently assuming a [0,1]-normalized clean baseline
 //   that wasn't actually true.
 //
-// Value range checking (see devdocs/DEV_LOG.md section 24):
+// Value range checking:
 //   Every loaded file's value range is checked immediately after loading.
 //   Data far outside [0,1] (e.g. raw CT Hounsfield values) is reported
 //   with a clear warning and auto-normalized via min-max rescaling unless
@@ -192,16 +192,16 @@ static int run_gray_mode(const CliOptions& opts) {
     // IMPORTANT: lambda is ALWAYS estimated from solve_input -- the actual
     // array the solver will see -- in EVERY mode, never assumed from
     // opts.noise_sigma directly. This unifies --input and --reference's
-    // measurement standard (see devdocs/DEV_LOG.md section 23): previously
-    // --reference/--demo blindly trusted opts.noise_sigma/255, which silently
-    // assumed the loaded "reference" was already clean [0,1] data -- true for
-    // --demo's own synthetic image, but NOT guaranteed for a user-supplied
+    // measurement standard: previously --reference/--demo blindly
+    // trusted opts.noise_sigma/255, which silently assumed the loaded
+    // "reference" was already clean [0,1] data -- true for --demo's
+    // own synthetic image, but NOT guaranteed for a user-supplied
     // --reference file (e.g. unnormalized medical data, or a real photo that
     // already has its own noise). Estimating from solve_input directly is
     // correct in all cases.
     //
     // Numerically re-verified (Python replica of this exact estimator and
-    // the synthetic test image, see devdocs/DEV_LOG.md section 30): at the
+    // the synthetic test image): at the
     // historically-validated default noise-sigma=25/255, the resulting
     // lambda differs from the old (pre-fix) trust-noise-sigma lambda by
     // under ~1% on average across seeds on the built-in synthetic test
@@ -378,8 +378,7 @@ static int run_volume_mode(const CliOptions& opts) {
     // solve_input directly, in every mode, never assumed from
     // opts.noise_sigma. Unifies --input/--reference measurement standard
     // -- this is what fixes the catastrophic --reference-on-unnormalized-
-    // CT-data failure (PSNR ~-50dB) reported on real MSD heart CT data,
-    // see devdocs/DEV_LOG.md section 21/23 for the full diagnosis.
+    // CT-data failure (PSNR ~-50dB) reported on real MSD heart CT data.
     float lambda = opts.lambda;
     if (!opts.lambda_set) {
         double sigma_to_use = estimate_noise_sigma_volume(solve_input.data, W, H, D);
