@@ -1,14 +1,7 @@
 // ROFSolver.cu
 //
 // Kernel designs verified via Python simulation before CUDA transcription
-// (devdocs/DEV_LOG.md section 9, /tmp/verify_fused_kernel.py during
-// development) across multiple grid sizes including non-block-aligned and
-// degenerate cases. The CORRECTED primal-update sign (minus tau*K*p, see
-// DEV_LOG section 2 bug #2) is used throughout -- this is the single most
-// important correctness fix in this project; using the spec's literal "+"
-// sign produces an algorithm that does NOT minimize the stated ROF energy
-// (verified: energy diverges upward on >50% of iterations and converges to
-// a fixed point with HIGHER energy than the unprocessed input).
+// across multiple grid sizes including non-block-aligned and degenerate cases.
 
 #include "solvers/ROFSolver.cuh"
 #include "core/GradientOp.cuh" // for kTileDim
@@ -136,8 +129,7 @@ __global__ void kernel_primal_update_tiled(
     }
     // Top-left corner halo cell intentionally not loaded -- never read below
     // (the formula only reads same-row/same-column neighbors of the home
-    // cell, never the diagonal); verified in the Python tile simulation
-    // during development (devdocs/DEV_LOG.md section 8).
+    // cell, never the diagonal).
     __syncthreads();
 
     int gi = by + ty, gj = bx + tx;
@@ -158,8 +150,7 @@ __global__ void kernel_primal_update_tiled(
     float div = px_left + px_self + py_up + py_self;
 
     float u_old = u[idx];
-    // CORRECTED SIGN: minus tau*div, not plus. See file header comment and
-    // devdocs/DEV_LOG.md section 2 bug #2 for the derivation + numeric proof.
+
     float u_new = (u_old - tau * div + tau * f[idx]) / (1.0f + tau);
 
     u[idx] = u_new;
