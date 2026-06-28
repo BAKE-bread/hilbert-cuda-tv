@@ -1,9 +1,9 @@
 // VolumeIO.h
 //
 // Minimal binary voxel format for 3D volumetric TV denoising input/output.
-// See devdocs/DEV_LOG.md section 13 for why a custom minimal format was
-// chosen over DICOM/NIfTI (short version: those are heavy, clinically-
-// oriented formats with parsing dependencies and metadata semantics this
+// The reason why a custom minimal format was chosen over 
+// DICOM/NIfTI (short version: those are heavy, clinically-oriented 
+// formats with parsing dependencies and metadata semantics this
 // denoiser has no use for -- it only needs a 3D array of intensities).
 //
 // File layout (".rawvol"):
@@ -106,8 +106,7 @@ inline void save_rawvol(const std::string& path, const Volume& vol) {
 }
 
 // Synthetic test volume: a bright sphere in a dark background, the classic
-// medical-imaging-style test case (also used for the math verification in
-// devdocs/DEV_LOG.md section 13) -- avoids needing a real CT/MRI dataset
+// medical-imaging-style test case -- avoids needing a real CT/MRI dataset
 // just to demo or test the volumetric path.
 inline Volume make_synthetic_test_volume(int W, int H, int D) {
     Volume vol;
