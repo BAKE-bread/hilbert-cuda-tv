@@ -9,9 +9,7 @@
 // but doing it through the actual ColorGradientOperator/kernel_color_*
 // code path (not the proven scalar kernels) so it specifically exercises
 // the channel-loop + shared-memory-tile-reuse logic unique to the color
-// kernels (see devdocs/DEV_LOG.md section 16 for why that loop needed an
-// extra __syncthreads() not present in the scalar kernels -- this test is
-// what would catch it if that reasoning were wrong).
+// kernels.
 
 #include "core/ColorGradientOp.cuh"
 #include "utils/CudaCheck.cuh"
@@ -92,7 +90,7 @@ int main() {
 
     printf("=== HilbertCUDA-TV color (multi-channel) GPU adjoint verification ===\n");
     printf("(exercises the channel-loop + shared-tile-reuse logic specific to\n");
-    printf(" the color kernels -- see devdocs/DEV_LOG.md section 16)\n\n");
+    printf(" the color kernels)\n\n");
 
     struct { int W, H, C; } sizes[] = {
         {1, 1, 1}, {1, 1, 3}, {1, 5, 3}, {5, 1, 3}, {16, 16, 3}, {17, 16, 3},
