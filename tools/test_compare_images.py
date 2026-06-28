@@ -82,10 +82,6 @@ class TestLoadImage(unittest.TestCase):
         np.testing.assert_allclose(loaded, arr, atol=1.0 / 255 + 1e-9)
 
     def test_16bit_grayscale_is_not_misread_as_color(self):
-        # Regression test: an earlier version of load_image() checked for
-        # PIL mode "I" but real 16-bit PNGs decode to "I;16"/"I;16B"/etc,
-        # which fell through to the RGB-conversion branch and silently
-        # produced wrong (and wrongly-shaped) data with no error at all.
         rng = np.random.default_rng(0)
         arr16 = (rng.uniform(0, 1, (32, 32)) * 65535).astype(np.uint16)
         path = self._path("g16.png")
@@ -141,11 +137,6 @@ class TestComparePair(unittest.TestCase):
         self.assertEqual(len(r["ssim_per_channel"]), 3)
 
     def test_color_ssim_is_per_channel_average_not_volume_misread(self):
-        # Regression-style test for the most important correctness
-        # property of this module: a (H,W,3) color image must NOT be
-        # passed directly into hctv_metrics.ssim_windowed(), which would
-        # silently interpret it as a 3-slice (D=H,H=W,W=3) volume instead
-        # of an image and produce a number with no error at all.
         clean = _smooth_color(size=32)
         rng = np.random.default_rng(5)
         noisy = np.clip(clean + rng.normal(0, 0.05, clean.shape), 0, 1)
@@ -154,10 +145,6 @@ class TestComparePair(unittest.TestCase):
         _save_color_png(pb, noisy)
         r = compare_pair(pa, pb)
 
-        # Compare against the SAME on-disk (8-bit quantized) arrays
-        # compare_pair() itself reads, not the unquantized float originals
-        # -- otherwise this test would fail on harmless PNG quantization
-        # noise rather than on the actual property under test.
         a_loaded = load_image(pa)
         b_loaded = load_image(pb)
 
@@ -166,8 +153,7 @@ class TestComparePair(unittest.TestCase):
             ssim_windowed(a_loaded[:, :, c], b_loaded[:, :, c]) for c in range(3)
         ]
         self.assertAlmostEqual(r["ssim"], float(np.mean(manual_per_channel)), places=6)
-        # And confirm it's NOT the (meaningless, volume-misread) result of
-        # calling ssim_windowed on the raw (H,W,3) arrays directly.
+
         misread_result = ssim_windowed(a_loaded, b_loaded)
         self.assertNotAlmostEqual(r["ssim"], misread_result, places=2)
 
@@ -232,15 +218,9 @@ class TestSaveDiffImage(unittest.TestCase):
         out = self._path("diff.png")
         save_diff_image(arr, arr.copy(), out)
         result = np.asarray(Image.open(out))
-        # Identical inputs -> diff is exactly 0 everywhere -> the
-        # percentile-based vmax_abs falls back to the 1e-9 floor, and
-        # t = 0/1e-9 = 0 everywhere -> pure white.
         np.testing.assert_array_equal(result, 255)
 
     def test_diff_image_colormap_breakpoints(self):
-        # Construct a case where we know the exact normalized t values:
-        # a 2-pixel image where pixel 0 has a>b (positive diff) and pixel
-        # 1 has a<b (negative diff) by equal magnitude.
         a = np.array([[0.6, 0.4]])
         b = np.array([[0.4, 0.6]])
         out = self._path("diff2.png")
