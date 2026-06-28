@@ -1,8 +1,8 @@
 // HilbertOperator.cuh
 //
-// Abstract base interface for operators on (discretized) Hilbert spaces, per
-// spec section 5.1. Kept literally as specified: apply() / applyAdjoint()
-// virtual methods, host-side dispatch only (no device-side virtual calls --
+// Abstract base interface for operators on (discretized) Hilbert spaces. 
+// Kept literally as specified: apply() / applyAdjoint() virtual
+// methods, host-side dispatch only (no device-side virtual calls --
 // this avoids the classic CUDA "virtual function table doesn't exist on
 // device" class of bugs entirely, since vtable dispatch happens on the host
 // before launching the actual kernel).
