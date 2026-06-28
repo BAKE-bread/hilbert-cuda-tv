@@ -2,11 +2,10 @@
 //
 // Verifies <Ku,p>_Y == <u,K*p> for the 3D volumetric gradient operator on
 // the GPU, mirroring tests/test_adjoint.cu's methodology with a third
-// dimension. See devdocs/DEV_LOG.md section 13 for the independent
-// operator-norm-bound verification (tau=sigma=1/sqrt(12)) this solver
-// relies on -- not tested here directly (that's a step-size choice, not
-// an adjoint-identity property), but documented so a reader knows where
-// to look if convergence ever looks wrong despite this test passing.
+// dimension. // The independent operator-norm bound verification 
+// (tau=sigma=1/sqrt(12)) this solver relies on is not tested here directly
+// (that's a step-size choice, not an adjoint-identity property), 
+// but it is documented for reference.
 
 #include "core/VolumeGradientOp.cuh"
 #include "utils/CudaCheck.cuh"
