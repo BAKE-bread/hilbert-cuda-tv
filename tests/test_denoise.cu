@@ -1,9 +1,7 @@
 // test_denoise.cu
 //
 // End-to-end acceptance test: synthetic test image -> add Gaussian noise
-// (sigma=25/255) -> run ROFSolver -> check PSNR improvement and final PSNR
-// against the targets adopted in devdocs/DEV_LOG.md section 1 (doc's own
-// suggested numbers, since the spec left these blank):
+// (sigma=25/255) -> run ROFSolver -> check PSNR improvement:
 //   - PSNR improvement >= 8.0 dB
 //   - final PSNR >= 29.5 dB
 //   - per-iteration time <= 1.5 ms at 1024x1024 (reported, not hard-failed,
@@ -63,7 +61,7 @@ int main() {
 
     printf("=== HilbertCUDA-TV end-to-end denoising acceptance test ===\n");
 
-    // Primary acceptance case, matches the spec's suggested NF4 target
+    // Primary acceptance case, matches the suggested NF4 target
     // (512x512-class image, sigma=25 noise) -- using 256x256 here to keep
     // the test fast; see scripts/ for the full 512x512/1024x1024 benchmark.
     all_ok &= run_denoise_test(256, 256, 25.0, 0.15f, 300, /*use_shared=*/true);
@@ -73,7 +71,7 @@ int main() {
     // a tiled-kernel-specific bug rather than an algorithmic one.
     all_ok &= run_denoise_test(256, 256, 25.0, 0.15f, 300, /*use_shared=*/false);
 
-    // Performance/scale check at the spec's primary target resolution.
+    // Performance/scale check at the primary target resolution.
     all_ok &= run_denoise_test(1024, 1024, 25.0, 0.15f, 300, /*use_shared=*/true);
 
     printf("\n=== RESULT: %s ===\n", all_ok ? "ALL TESTS PASSED" : "SOME TESTS FAILED");
