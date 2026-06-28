@@ -1,11 +1,9 @@
 // ColorROFSolver.cu
 //
 // Two-pass-per-block projection kernel design verified in Python simulation
-// before CUDA transcription (devdocs/DEV_LOG.md section 12, the
-// verify_color_solver_tiled.py methodology) across multiple grid sizes.
-// Inherits BOTH bug fixes from the scalar solver (devdocs/DEV_LOG.md
-// section 2): gated divergence boundary terms, and the corrected MINUS
-// sign on tau*K*p in the primal update.
+// before CUDA transcription across multiple grid sizes.
+// Inherits BOTH bug fixes from the scalar solver: gated divergence boundary 
+// terms, and the corrected MINUS sign on tau*K*p in the primal update.
 
 #include "solvers/ColorROFSolver.cuh"
 #include "core/ColorGradientOp.cuh" // for kColorTileDim
@@ -27,7 +25,7 @@ namespace hctv {
 // at this thread's pixel and accumulates the joint norm; pass 2 (after all
 // channels' tiles have been loaded -- note the tile is reused/aliased
 // across channels, requiring careful sync placement, see file comment in
-// ColorGradientOp.cu and devdocs/DEV_LOG.md section 16) scales and writes.
+// ColorGradientOp.cu) scales and writes.
 // Small fixed-size local arrays (size kMaxColorChannels) hold each
 // thread's per-channel q values between the two passes -- these live in
 // registers/local memory, not shared memory, so they don't add to the
@@ -80,7 +78,7 @@ __global__ void kernel_color_dual_ascent_project_tiled(
             qy_local[c] = qy;
             norm_sq += qx * qx + qy * qy;
         }
-        __syncthreads(); // required before next channel overwrites tile -- see DEV_LOG section 16
+        __syncthreads(); // required before next channel overwrites tile
     }
 
     // Pass 2: scale and write (no further tile reads needed, so no extra
@@ -102,8 +100,6 @@ __global__ void kernel_color_dual_ascent_project_tiled(
 // Independent per channel (the projection above is the only coupling
 // point) -- structurally identical to the scalar kernel_primal_update_tiled
 // in ROFSolver.cu, just looped over channels with a reused tile.
-// CORRECTED SIGN (minus tau*div, not plus) -- see devdocs/DEV_LOG.md
-// section 2 bug #2.
 // ===========================================================================
 __global__ void kernel_color_primal_update_tiled(
     float* __restrict__ u, float* __restrict__ ubar,
