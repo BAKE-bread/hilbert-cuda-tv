@@ -1,20 +1,18 @@
 // GradientOp.cuh
 //
-// Forward-difference gradient operator K (Neumann boundary), per spec 2.2.
+// Forward-difference gradient operator K (Neumann boundary).
 // Provides:
 //   apply(u, [px,py])       -- forward gradient
 //   applyAdjoint(p, div)    -- adjoint (negative divergence), see note below
 //
-// IMPORTANT (see devdocs/DEV_LOG.md section 2 for full derivation + numeric
-// proof): the adjoint formula implemented here is NOT the literal formula
-// in spec section 2.3. The spec's formula
+// IMPORTANT: the adjoint formula implemented here is NOT the naive formula
 //     (K* p)[i,j] = px[i,j-1] - px[i,j] + py[i-1,j] - py[i,j]
-// is only correct in the interior; at the boundary (j=W-1 or i=H-1) the
-// "-px[i,j]" / "-py[i,j]" self-terms must ALSO be gated by the same
-// boundary condition the forward gradient uses, or the adjoint identity
-// <Ku,p> = <u,K*p> fails for general p (verified: error was O(1) without
-// the gate, ~1e-13 i.e. roundoff with it, across 160 random trials spanning
-// 8 grid sizes including degenerate 1x1/1x5/5x1 cases).
+// which is only correct in the interior. At the boundary (j=W-1 or i=H-1),
+// the "-px[i,j]" / "-py[i,j]" self-terms must ALSO be gated by the same
+// boundary condition used in the forward gradient; otherwise the adjoint
+// identity <Ku,p> = <u,K*p> fails for general p. Verified: error was O(1)
+// without the gate, ~1e-13 (roundoff) with it, across 160 random trials
+// spanning 8 grid sizes including degenerate 1x1/1x5/5x1 cases.
 #pragma once
 
 #include <cuda_runtime.h>
@@ -35,9 +33,7 @@ __global__ void kernel_divergence_naive(const float* __restrict__ px,
                                          int W, int H);
 
 // Shared-memory tiled kernels (M3 optimization). 16x16 thread blocks, halo
-// of 1 pixel. See src/core/GradientOp.cu for the exact tile layout and
-// devdocs/DEV_LOG.md for the Python-simulated correctness proof these were
-// derived from before being transcribed to CUDA.
+// of 1 pixel. See src/core/GradientOp.cu for the exact tile layout.
 __global__ void kernel_gradient_tiled(const float* __restrict__ u,
                                        float* __restrict__ px,
                                        float* __restrict__ py,
@@ -61,7 +57,7 @@ public:
     // single in/out pointer signature; ROFSolver uses separate px/py
     // buffers directly via the free kernel functions below instead, since
     // that avoids an extra copy -- this class method is provided mainly to
-    // satisfy/demonstrate the spec's required interface and for the
+    // satisfy/demonstrate the required interface and for the
     // adjoint unit test.)
     void apply(const float* in, float* out, cudaStream_t stream) override;
 
