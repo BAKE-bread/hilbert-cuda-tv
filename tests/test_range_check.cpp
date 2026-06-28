@@ -2,8 +2,8 @@
 //
 // Standalone unit test for include/utils/RangeCheck.h. Previously this
 // header was only manually verified via a throwaway /tmp test during
-// development (see devdocs/DEV_LOG.md section 24/29) -- this gives it a
-// real, repeatable, assertion-based test committed to the repo.
+// development -- this gives it a real, repeatable, assertion-based test 
+// committed to the repo.
 //
 // RangeCheck.h is pure host C++ with no CUDA dependency at all, so this
 // test (like devdocs/cpu_reference/cpu_reference.cpp) builds and runs with
@@ -54,7 +54,7 @@ static void test_slightly_outside_tolerance_is_still_ok() {
 
 static void test_clearly_unnormalized_warns() {
     // e.g. CT Hounsfield-range-like values, the exact bug class this
-    // header exists to catch (devdocs/DEV_LOG.md section 21).
+    // header exists to catch.
     std::vector<float> data = {-1000.0f, -500.0f, 0.0f, 500.0f, 1999.0f};
     auto r = check_value_range(data);
     CHECK(r.status == RangeStatus::WarnUnnormalized, "CT-like range should warn, not silently pass");
