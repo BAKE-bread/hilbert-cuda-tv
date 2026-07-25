@@ -124,11 +124,7 @@ K*p [i,j] = (j>0 ? p_x[i,j-1] : 0) + (j<width-1  ? -p_x[i,j] : 0)
 > `j<width-1` / `i<height-1` conditions on the negative terms. That
 > simplified version is only correct in the image interior — at the
 > boundary it breaks the adjoint identity `⟨Ku,p⟩ = ⟨u,K*p⟩`, which this
-> algorithm's correctness depends on. This was caught empirically during
-> development (an independent CPU double-precision implementation, run
-> before any GPU code was written, found the adjoint identity failing by
-> O(1) with the simplified formula and by ~1e-13 — pure floating-point
-> roundoff — with the gated version). All gradient/divergence kernels in
+> algorithm's correctness depends on. All gradient/divergence kernels in
 > this codebase use the gated form.
 
 The step sizes `τ, σ` in the algorithm must satisfy `τσ‖K‖² ≤ 1` for
@@ -349,13 +345,11 @@ either one.
   noise (it has none — that's the point).
 - **`--reference clean.png --noise-sigma 0.01` with no `--lambda`:** this
   is the case that produced a *negative* "improvement" in testing (PSNR
-  noisy-vs-clean: 88 dB; PSNR denoised-vs-clean: 47 dB). This is not a
+  noisy-vs-clean: 88 dB; PSNR denoised-vs-clean: 44 dB). This is not a
   bug: `--noise-sigma` is on a **0–255** scale, so `0.01` injects an
   almost imperceptible amount of noise — the "noisy" image is already
   99.99%+ identical to clean. The solver still measures *some* residual
-  noise (there's always a little, even in a clean image, from the
-  estimator's own ~1–4% baseline uncertainty — see section 15 of
-  `devdocs/DEV_LOG.md`) and applies a correspondingly tiny but nonzero
+  noise and applies a correspondingly tiny but nonzero
   `lambda`, which **smooths real detail that was never noise in the
   first place**. Lower PSNR after "denoising" an already-clean image is
   the expected, correct outcome of doing this, not a sign anything is
@@ -386,40 +380,16 @@ solver is about to run on** — in every mode (`--input`, `--demo`,
   injected into the clean reference (again, not assumed equal to
   `--noise-sigma`).
 
-This used to be inconsistent: `--demo`/`--reference` previously trusted
-`--noise-sigma` directly instead of measuring the data, which silently
-assumed the file being noised was already clean [0,1] data — true for
-`--demo`'s own synthetic image, but not guaranteed for a user-supplied
-`--reference` file (e.g. unnormalized medical data, or a real photo that
-already had its own noise before injection). Estimating from the actual
-array in every mode fixes that inconsistency.
-
-This was numerically re-verified with a Python replica of the exact
-estimator and the built-in synthetic test image (see
-`devdocs/DEV_LOG.md` section 30 for the full derivation): at the
-historically-validated default `--noise-sigma 25`, the resulting lambda
-differs from the old behavior by under ~1% on average, so old `--demo`
-PSNR/SSIM numbers at that setting remain a reasonable sanity check. **This
-is not a tight bound at every setting**, though — the gap grows with
-`--noise-sigma` (up to ~5% by `--noise-sigma 60` in the same test),
-because heavier injected noise clips more pixels at the `[0,1]` boundary,
-a real and expected nonlinearity, not an estimator bug: clipping
-suppresses the *effective* noise variance the estimator measures, so its
-estimate increasingly undershoots the nominal injected value as more
-pixels saturate. An earlier internal note claimed a flat "~0.1%" bound;
-that number turned out to be specific to one seed/sigma combination and
-didn't hold up under broader re-verification, so it's been corrected
-here and in the code comments.
-
-Why this matters in practice: a fixed `lambda` tuned for one noise level
-can badly over-smooth a cleaner image — early testing found that a
-default tuned for heavy synthetic noise (σ=25/255) turned a normal,
-lightly-noisy photograph into a posterized, "cartoon-like" result,
-because it was smoothing away real texture (fur, grass, fabric) along
-with the (mostly absent) noise. Auto-estimation from the real data fixes
-this for typical photos; if a specific image still looks over- or
-under-smoothed, override with `--lambda <value>` directly (try halving or
-doubling it and compare).
+Now `--demo` and `--reference` both estimate noise variance 
+directly from the input array, rather than blindly trusting `--noise-sigma`.  
+This makes the behavior consistent and avoids silently assuming the input 
+is already clean `[0,1]` data, giving more consistent behavior across real images. 
+﻿
+For typical photos, auto‑estimation prevents over‑smoothing 
+(e.g. turning texture into cartoon‑like results).  
+If the automatic estimate produces over‑ or under‑smoothing for a specific 
+image, you can override with `--lambda <value>` directly (e.g., try halving 
+or doubling the value and compare).
 
 #### `--no-auto-normalize` and input value ranges
 
@@ -722,9 +692,8 @@ CMake options (pass as `-D<OPTION>=ON/OFF`):
 one generic templated solver?** The scalar 2D path was validated on real
 hardware before the color/volume code was written. Generalizing the
 existing kernels into one templated implementation would have required
-re-deriving and re-verifying that already-working code from scratch, with
-no GPU available during that development to re-confirm it still worked
-afterward. Keeping the proven path untouched and adding new, separate
+re-deriving and re-verifying that already-working code from scratch. 
+Keeping the proven path untouched and adding new, separate
 (structurally similar, but independent) kernel families for color and
 volume was the lower-risk choice. A future unification is possible once
 all three paths are independently hardware-validated, but wasn't done here.
@@ -774,12 +743,7 @@ interface was designed around.
 Every piece of math in this project was validated **before** being written
 as a CUDA kernel — first as a derivation, then numerically (in Python
 during development, and in a standalone C++ CPU reference implementation
-that's still in this repo). This mattered: the process caught two real
-bugs in the original algorithm specification this project was built from
-(a boundary-condition gap in the divergence operator, and a sign error in
-the primal update) — both would have silently produced a "denoiser" that
-doesn't actually minimize the energy it's supposed to minimize, while
-still running without crashing and producing *some* output.
+that's still in this repo).
 
 **Run the CPU reference** (no GPU/CUDA needed, just a C++17 compiler):
 
@@ -829,14 +793,8 @@ python -m pytest test_hctv_metrics.py test_preprocess_volume.py test_compare_vol
 ```
 
 **Re-run a specific numerical claim** made in this README or in
-`devdocs/DEV_LOG.md` (e.g. "the lambda fix differs by under ~1% at the
-default noise level", or "‖K‖² ≤ 8 for the 2D gradient operator"): see
-`devdocs/verification/` — each script there is a committed, standalone,
-re-runnable check for one specific claim (the lambda-estimation fix, the
-PSNR/SSIM formulas vs an independent textbook implementation,
-`RangeCheck.h`'s normalization algebra, the batch-mode summary
-statistics, and the Chambolle-Pock step-size operator-norm bounds),
-rather than something you'd have to re-derive by hand to double-check.
+`devdocs/DEV_LOG.md` — each script there is a committed, standalone,
+re-runnable check for one specific claim.
 Run any of them directly:
 
 ```bash
@@ -846,12 +804,6 @@ python3 devdocs/verification/verify_rangecheck_math.py
 python3 devdocs/verification/verify_batch_stats.py
 python3 devdocs/verification/verify_operator_norm.py
 ```
-
-See `devdocs/DEV_LOG.md` if you want the full derivations, the specific
-numerical evidence for every design decision, and a chronological account
-of what was tried, verified, and (twice) found to be wrong before being
-fixed. It's kept up to date as this project evolves and is the first place
-to look before re-deriving something that may already be settled.
 
 ---
 
